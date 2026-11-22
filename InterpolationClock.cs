@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 public class InterpolationClock
@@ -24,7 +23,7 @@ public class InterpolationClock
     public double PlaybackSpeed => playbackSpeed;
     public ulong LatestSnapshotTick => latestSnapshotTick;
 
-    public InterpolationClock(int tickRate = 50, int bufferDistance = 5)
+    public InterpolationClock(int tickRate = 50, int bufferDistance = 4)
     {
         if (tickRate <= 0) throw new ArgumentOutOfRangeException(nameof(tickRate));
         if (bufferDistance < 0) throw new ArgumentOutOfRangeException(nameof(bufferDistance));
@@ -33,6 +32,11 @@ public class InterpolationClock
         this.bufferDistance = bufferDistance;
     }
 
+    /// <summary>
+    /// 维护和推进clock当前最新收到的世界快照tick
+    /// 根据当前的renderTick与targetTick的距离来改变播放速度
+    /// 承担第一次调用初始化函数的职责
+    /// </summary>
     public void OnSnapshotArrive(ulong tick)
     {
         //检查是否初始化
@@ -69,7 +73,7 @@ public class InterpolationClock
                 return;
             }
 
-            if (drift > 1.0)       playbackSpeed = 1.02;
+            if      (drift >  1.0) playbackSpeed = 1.02;
             else if (drift < -1.0) playbackSpeed = 0.96;//更快的积累缓冲
             else                   playbackSpeed = 1.0;
         }

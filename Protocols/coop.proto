@@ -1,0 +1,54 @@
+ syntax = "proto3";
+
+option csharp_namespace = "HostAuthorityDemo.Protocol";
+
+message StartGame 
+{
+
+}
+
+message PlayerAssigned 
+{
+	int32 player_id = 1; 
+}
+
+message UdpHello 
+{
+	int32 player_id = 1; 
+}
+
+message PlayerMove {
+  // 左右方向：A = -1，D = 1，未按或同时按下 = 0。
+  float input_x = 1;
+  // 前后方向：S = -1，W = 1，未按或同时按下 = 0。
+  float input_z = 2;
+
+  bool running = 3;
+
+  bool jumpRequest = 4;
+
+  double timeStamp = 5;
+}
+
+message Postion{
+	float x = 1;
+	float y = 2;
+	float z = 3;
+}
+
+message PlayerSnapshot {
+  Postion position = 1;
+  double timeStamp = 2;
+}
+
+message WorldSnapshot {
+  uint64 tick = 1;
+  //玩家基本信息
+  map<int32, PlayerSnapshot> playerSnapshots = 2;
+  //TODO：敌人信息
+  //TODO：场景物品信息
+}
+
+// 仅用于开局流程的 TCP 控制消息。
+message SceneReady {}
+message BeginMatch {}

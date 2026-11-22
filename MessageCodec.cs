@@ -8,8 +8,8 @@ public static class MessageCodec
 {
     public const int MaxMessageLength = 64 * 1024;
 
-    /// <summary>编码消息；长度包含两字节类型编号和 Protobuf 正文。</summary>
-    public static byte[] EncodeMessage(MessageType messageType, IMessage message)
+    /// <summary>编码消息；长度包含两字节类型编号和 Protobuf 正文</summary>
+    public static byte[] EncodeTcpMessage(MessageType messageType, IMessage message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -25,6 +25,18 @@ public static class MessageCodec
         packet[4] = (byte)(typeId >> 8);
         packet[5] = (byte)(typeId & 0xFF);
         Buffer.BlockCopy(payload, 0, packet, 6, payload.Length);
+        return packet;
+    }
+
+    /// <summary>编码消息；相比于tcp的，不需要长度信息</summary>
+    public static byte[] EncodeUdpMessage(MessageType messageType, IMessage message)
+    {
+        byte[] payload = message.ToByteArray();
+        byte[] packet = new byte[2 + payload.Length];
+        ushort typeId = (ushort)messageType;
+        packet[0] = (byte)(typeId >> 8);
+        packet[1] = (byte)(typeId & 0xFF);
+        Buffer.BlockCopy(payload, 0, packet, 2, payload.Length);
         return packet;
     }
 
